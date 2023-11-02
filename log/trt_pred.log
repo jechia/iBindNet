@@ -1,0 +1,37 @@
+k=5
+vocab=1029
+rbp="EIF4G2"
+type="fusion"
+
+CUDA_VISIBLE_DEVICES="0" python main.py --load_best \
+                                        --onnx \
+                                        --data /home/huyue/RNA_binding/genome_fragment/genome_fragment00 \
+                                        --vocab /home/huyue/program/iBindNet_v0.3/vocab/${k}mer.txt \
+                                        --p_name  ${rbp}_${type}_${k}mer \
+                                        --model_name ${rbp}_${type}_${k}mer_50 \
+                                        --out_dir /home/huyue/program/iBindNet_v0.3 \
+                                        --kmer_size ${k} \
+                                        --batch_size 256 \
+                                        --vocab_size ${vocab} \
+                                        --seed 1029 \
+                                        --num_hidden_layers 8 \
+                                        --num_attention_heads 8 \
+                                        --hidden_size 512 \
+                                        --intermediate_size 512
+
+/home/huyue/program/TensorRT-8.4.3.1/bin/trtexec --onnx=./out/onnxs/${rbp}_${type}_${k}mer_50.onnx --saveEngine=./out/trts/${rbp}_${type}_${k}mer_50.trt --minShapes=tokens_ids:1x100,segment_ids:1x100 --maxShapes=tokens_ids:256x100,segment_ids:256x100 --optShapes=tokens_ids:32x100,segment_ids:32x100
+
+CUDA_VISIBLE_DEVICES="0" python main.py --trt \
+                                        --data /home/huyue/RNA_binding/trans_frag_100_uniq.txt \
+                                        --vocab /home/huyue/program/iBindNet_v0.3/vocab/${k}mer.txt \
+                                        --p_name ${rbp}_${type}_${k}mer_trans \
+                                        --model_name ${rbp}_${type}_${k}mer_50 \
+                                        --out_dir /home/huyue/program/iBindNet_v0.3 \
+                                        --kmer_size ${k} \
+                                        --batch_size 256 \
+                                        --vocab_size ${vocab} \
+                                        --seed 1029 \
+                                        --num_hidden_layers 8 \
+                                        --num_attention_heads 8 \
+                                        --hidden_size 512 \
+                                        --intermediate_size 512
