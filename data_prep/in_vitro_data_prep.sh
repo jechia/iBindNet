@@ -38,3 +38,16 @@ awk 'BEGIN{while(getline < "bound_set.txt"){d[$1]=$1}}!($2 in d)' ${rbp}_control
 #output: total library
 sort -R ${rbp}_unbound_class.txt | head -1000000 | awk -v OFS="\t" '{print $1,0}' > ${rbp}_unbound_bert_pretrain.txt
 sort -R bound_set_sel.txt | head -1000000 | awk -v OFS="\t" '{print $1,1}' > ${rbp}_bound_bert_pretrain.txt
+
+
+cat *_Homo_sapiens.txt | awk '$2>1&&$2!="NaN"{print $1}' | sort | uniq -c | awk -v OFS="\t" '$1==2{print $2,1}' > ${rbp}_bound_set.txt
+cat *_Homo_sapiens.txt | awk '$2<0&&$2!="NaN"{print $1}' | sort | uniq -c | awk -v OFS="\t" '$1==2{print $2,0}' > ${rbp}_unbound_set.txt
+
+wc -l ${rbp}_bound_set.txt
+wc -l ${rbp}_unbound_set.txt
+N=
+sort -R ${rbp}_bound_set.txt | head -${N} > ${rbp}_bound_RNAcompete.txt
+sort -R ${rbp}_unbound_set.txt | head -${N} > ${rbp}_unbound_RNAcompete.txt
+cat ${rbp}_unbound_RNAcompete.txt ${rbp}_bound_RNAcompete.txt >${rbp}_RNAcompete.txt
+echo $N
+wc -l ${rbp}_RNAcompete.txt
